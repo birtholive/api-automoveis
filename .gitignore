@@ -1,0 +1,11 @@
+.venv/
+.env
+*.csv
+*.json
+*.txt
+*.log
+*.log.*
+*.log.*.*
+*.log.*.*.*
+*.log.*.*.*.*
+*.log.*.*.*.*.*
