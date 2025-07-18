@@ -20,6 +20,9 @@ def transform_anos(data_path):
         df_expanded['model_ano'].apply(pd.Series)
     ], axis=1)
     df_final.columns = ['model_code', 'brand_code', 'ano_code', 'ano_name']
+    df_final['year'] = df_final['ano_name'].apply(lambda x: x.split()[0])
+    df_final['fuel'] = df_final['ano_name'].apply(lambda x: x.split()[1])
+    df_final.drop(columns=['ano_code', 'ano_name'], inplace=True)
     df_final.to_csv(f"{data_path}/anos_transformados.csv", index=False)
     return df_final
 

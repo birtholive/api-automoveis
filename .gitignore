@@ -1,6 +1,8 @@
 .venv/
 .env
 *.csv
+*.xlsx
+cnae.ipynb
 *.json
 *.txt
 *.log
@@ -9,3 +11,4 @@
 *.log.*.*.*
 *.log.*.*.*.*
 *.log.*.*.*.*.*
+teste_regex.py
