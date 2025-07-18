@@ -12,3 +12,4 @@ cnae.ipynb
 *.log.*.*.*.*
 *.log.*.*.*.*.*
 teste_regex.py
+*.db

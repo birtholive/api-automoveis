@@ -37,8 +37,8 @@ def inserir_ano(df):
 if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
     create_db_and_tables()
-    df_marcas = pd.read_csv(f"{data_path}/marcas_transformados.csv")
-    df_modelos = pd.read_csv(f"{data_path}/modelos_transformados.csv")
+    df_marcas = pd.read_csv(f"{data_path}/marcas.csv")
+    df_modelos = pd.read_csv(f"{data_path}/modelos.csv")
     df_anos = pd.read_csv(f"{data_path}/anos_transformados.csv")
     inserir_ano(df_anos)
     # inserir_marca(df_marcas)
