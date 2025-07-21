@@ -4,19 +4,9 @@ import logging
 import pandas as pd
 import numpy as np
 from models import Marca, Modelo, Ano
+from create_db import create_db_and_tables, engine
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-engine = create_engine("sqlite:///src/database.db")
-
-
-def create_db_and_tables():
-    try:
-        SQLModel.metadata.create_all(engine)
-        logging.info(f"Banco de dados criado com sucesso")
-    except Exception as e:
-        logging.error(f"Erro ao criar o banco de dados")
-        raise # significa que o erro será propagado para o nível superior
 
 def inserir_ano(df):
     anos = [
@@ -71,11 +61,7 @@ def filtra_anos_csv(diff):
 
 if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
-    # create_db_and_tables()
-    # df_marcas = pd.read_csv(f"{data_path}/marcas.csv")
-    # df_modelos = pd.read_csv(f"{data_path}/modelos.csv")
-    # df_anos = pd.read_csv(f"{data_path}/anos_transformados.csv")
-    # Para verificar se o banco de dados SQLite existe, podemos checar se o arquivo existe no sistema de arquivos.
+
     if not os.path.exists("database.db"):
         create_db_and_tables()
 
@@ -86,6 +72,6 @@ if __name__ == "__main__":
     if not diff_filtrado.empty:
         inserir_ano(diff_filtrado)
     else:
-        logging.info("Não há diferenças entre o arquivo CSV e do banco de dados")
+        logging.info("Não há diferenças entre o arquivo CSV e o banco de dados")
     
     
