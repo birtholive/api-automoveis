@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from models import Marca, Modelo, Ano
 from create_db import create_db_and_tables, engine
+import time
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -21,7 +22,7 @@ def inserir_ano(df):
     with Session(engine) as session:
         session.add_all(anos)
         session.commit()
-        print(f"{len(anos)} linhas foram inseridas no banco de dados.")
+        logging.info(f"✅ {len(anos)} linhas foram inseridas no banco de dados.")
     return anos
 
 def consulta_anos_db():
@@ -58,6 +59,35 @@ def filtra_anos_csv(diff):
     df_filtrado = pd.merge(df_anos, df_diff, on=['model_code', 'year'])
     return df_filtrado
 
+def inserir_modelos(df):
+    modelos = [
+        Modelo(
+            id_modelo=int(row['code']),
+            nome = str(row['name']),
+            id_marca=int(row['brand_code'])
+        )
+        for _, row in df.iterrows()
+    ]
+    with Session(engine) as session:
+        session.add_all(modelos)
+        session.commit()
+        logging.info(f"✅ {len(modelos)} modelos foram inseridos no banco de dados.")
+    return modelos
+
+def inserir_marcas(df):
+    marcas = [
+        Marca(
+            id_marca=int(row['code']),
+            nome = str(row['name'])
+        )
+        for _, row in df.iterrows()
+    ]
+    with Session(engine) as session:
+        session.add_all(marcas)
+        session.commit()
+        logging.info(f"✅ {len(marcas)} marcas foram inseridas no banco de dados.")
+    return marcas
+
 
 if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
@@ -72,6 +102,10 @@ if __name__ == "__main__":
     if not diff_filtrado.empty:
         inserir_ano(diff_filtrado)
     else:
-        logging.info("Não há diferenças entre o arquivo CSV e o banco de dados")
-    
+        logging.info("⚠️ Não há diferenças entre o arquivo CSV e o banco de dados")
+
+    df_modelos = pd.read_csv(f"{data_path}/modelos.csv")
+    inserir_modelos(df_modelos)
+    df_marcas = pd.read_csv(f"{data_path}/marcas.csv")
+    inserir_marcas(df_marcas)
     

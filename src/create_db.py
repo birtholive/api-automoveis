@@ -8,7 +8,7 @@ engine = create_engine("sqlite:///data/database.db")
 def create_db_and_tables():
     try:
         SQLModel.metadata.create_all(engine)
-        logging.info(f"Banco de dados criado com sucesso")
+        logging.info(f"✅ Banco de dados criado com sucesso")
     except Exception as e:
-        logging.error(f"Erro ao criar o banco de dados")
+        logging.error(f"❌ Erro ao criar o banco de dados")
         raise # significa que o erro será propagado para o nível superior
