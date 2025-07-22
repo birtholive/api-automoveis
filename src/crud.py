@@ -16,6 +16,7 @@ def inserir_anos():
         logging.info("⚠️  Não há novos registros de anos para inserir no banco de dados.")
         return None
     else:
+        df.sort_values(by=['year', 'brand_code', 'model_code'], inplace=True)
         logging.info(f"✅ Inserindo {len(df)} novos registros de anos no banco de dados.")
         anos = [
             Ano(
@@ -88,6 +89,7 @@ def inserir_modelos():
         logging.info("⚠️  Não há novos registros de modelos para inserir no banco de dados.")
         return None
     else:
+        df.sort_values(by='code', inplace=True)
         logging.info(f"✅ Inserindo {len(df)} registros de modelos no banco de dados.")
         modelos = [
             Modelo(
@@ -131,6 +133,7 @@ def inserir_marcas():
         logging.info("⚠️  Não há novos registros de marcas para inserir no banco de dados.")
         return None 
     else:
+        df.sort_values(by='code', inplace=True)
         logging.info(f"✅ Inserindo {len(df)} registros de marcas no banco de dados.")
         marcas = [
             Marca(
