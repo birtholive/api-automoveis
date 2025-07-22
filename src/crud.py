@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Session, create_engine, select
+from sqlmodel import Session, select
 import os
 import logging
 import pandas as pd
