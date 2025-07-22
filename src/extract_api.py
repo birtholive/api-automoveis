@@ -3,14 +3,18 @@ import os
 from dotenv import load_dotenv
 import requests
 import time
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 load_dotenv()
 
 def extract_marcas():
+    logging.info("Iniciando extração de marcas")
     df = pd.read_json("https://fipe.parallelum.com.br/api/v2/cars/brands")
     return df
 
 def extract_modelos():
+    logging.info("Iniciando extração de modelos")
     df_marcas = pd.read_csv("marcas.csv")
     df_modelos = pd.DataFrame()
     for code in df_marcas["code"]:
@@ -33,10 +37,12 @@ def define_diff():
     else:
         diff = df_modelos[["code", "brand_code"]]
         diff.columns = ["model_code", "brand_code"]
+    logging.info(f"Diferenças encontradas: {len(diff)}")
     return diff
 
 def extract_anos(diff):
     df_anos = pd.DataFrame()
+    logging.info(f"Iniciando extração de anos para {len(diff)} modelos")
 
     for model_code, brand_code in diff.values:
         try:
@@ -46,7 +52,8 @@ def extract_anos(diff):
             df_temp = pd.DataFrame([{"model_code": model_code, "brand_code": brand_code, "model_ano":texto}])
             df_anos = pd.concat([df_anos, df_temp], ignore_index=True)
         except Exception as e:
-            print(f"Ocorreu um erro ao processar o modelo {model_code} da marca {brand_code}. Encerrando o loop para evitar bloqueio por limite de requisições.\nErro: {e}")
+            logging.error(f"Ocorreu um erro ao processar o modelo {model_code} da marca {brand_code}. Encerrando o loop para evitar bloqueio por limite de requisições.")
+            logging.error(f"Erro: {e}")
             break    
         time.sleep(0.2)  # Pequeno delay para evitar limite de requisições    
     return df_anos

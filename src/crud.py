@@ -5,7 +5,9 @@ import pandas as pd
 import numpy as np
 from models import Marca, Modelo, Ano
 from create_db import create_db_and_tables, engine
-import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -104,8 +106,8 @@ if __name__ == "__main__":
     else:
         logging.info("⚠️ Não há diferenças entre o arquivo CSV e o banco de dados")
 
-    df_modelos = pd.read_csv(f"{data_path}/modelos.csv")
-    inserir_modelos(df_modelos)
-    df_marcas = pd.read_csv(f"{data_path}/marcas.csv")
-    inserir_marcas(df_marcas)
+    # df_modelos = pd.read_csv(f"{data_path}/modelos.csv")
+    # inserir_modelos(df_modelos)
+    # df_marcas = pd.read_csv(f"{data_path}/marcas.csv")
+    # inserir_marcas(df_marcas)
     

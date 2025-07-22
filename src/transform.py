@@ -2,6 +2,9 @@ import pandas as pd
 import json
 from dotenv import load_dotenv
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 load_dotenv()
 
@@ -28,5 +31,7 @@ def transform_anos(data_path):
 
 if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
+    logging.info("Iniciando transformação de anos")
     dados_transformados = transform_anos(data_path)
+    logging.info("Gravando dados transformados em CSV")
     dados_transformados.to_csv(f"{data_path}/anos_transformados.csv", index=False)
