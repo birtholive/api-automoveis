@@ -6,6 +6,7 @@ import numpy as np
 from models import Marca, Modelo, Ano
 from create_db import create_db_and_tables, engine
 from dotenv import load_dotenv
+import sys
 
 load_dotenv()
 
@@ -61,34 +62,93 @@ def filtra_anos_csv(diff):
     df_filtrado = pd.merge(df_anos, df_diff, on=['model_code', 'year'])
     return df_filtrado
 
-def inserir_modelos(df):
-    modelos = [
-        Modelo(
-            id_modelo=int(row['code']),
-            nome = str(row['name']),
-            id_marca=int(row['brand_code'])
-        )
-        for _, row in df.iterrows()
-    ]
-    with Session(engine) as session:
-        session.add_all(modelos)
-        session.commit()
-        logging.info(f"✅ {len(modelos)} modelos foram inseridos no banco de dados.")
-    return modelos
 
-def inserir_marcas(df):
-    marcas = [
-        Marca(
-            id_marca=int(row['code']),
-            nome = str(row['name'])
-        )
-        for _, row in df.iterrows()
-    ]
+def verifica_modelos_db():
     with Session(engine) as session:
-        session.add_all(marcas)
-        session.commit()
-        logging.info(f"✅ {len(marcas)} marcas foram inseridas no banco de dados.")
-    return marcas
+        statement = select(Modelo.id_modelo)
+        result = session.exec(statement)
+        resultado = pd.DataFrame(result.all())
+        if not resultado.empty:
+            resultado.columns = ['id_modelo']
+        else:
+            resultado = []
+
+    if hasattr(resultado, 'values'):
+        lista_resultado = resultado['id_modelo'].tolist()
+    else:
+        lista_resultado = list(resultado)
+
+    modelos_csv = pd.read_csv(f"{data_path}/modelos.csv")
+    list_modelos = modelos_csv['code'].tolist()
+    list_diff = [item for item in list_modelos if item not in lista_resultado]
+
+    novos_modelos = modelos_csv[modelos_csv['code'].isin(list_diff)]
+
+    return novos_modelos
+
+def inserir_modelos():
+    df = verifica_modelos_db()
+    if df.empty:
+        logging.info("⚠️  Não há novos modelos para inserir no banco de dados.")
+        return None
+    else:
+        logging.info(f"✅ Inserindo {len(df)} modelos no banco de dados.")
+        modelos = [
+            Modelo(
+                id_modelo=int(row['code']),
+                nome = str(row['name']),
+                id_marca=int(row['brand_code'])
+            )
+            for _, row in df.iterrows()
+        ]
+        with Session(engine) as session:
+            session.add_all(modelos)
+            session.commit()
+            logging.info(f"✅ {len(modelos)} modelos foram inseridos no banco de dados.")
+        return modelos
+
+def verifica_marcas_db(data_path):
+    with Session(engine) as session:
+        statement = select(Marca.id_marca)
+        result = session.exec(statement)
+        resultado = pd.DataFrame(result.all())
+        if not resultado.empty:
+            resultado.columns = ['id_marca']
+        else:
+            resultado = []
+
+    if hasattr(resultado, 'values'):
+        lista_marcas_db = resultado['id_marca'].tolist()
+    else:
+        lista_marcas_db = list(resultado)
+
+    marcas_csv = pd.read_csv(f"{data_path}/marcas.csv")
+    lista_marcas_csv = marcas_csv['code'].tolist()
+    list_diff = [item for item in lista_marcas_csv if item not in lista_marcas_db]
+
+    novas_marcas = marcas_csv[marcas_csv['code'].isin(list_diff)]
+    return novas_marcas
+
+def inserir_marcas():
+    df = verifica_marcas_db(data_path)
+    if df.empty:
+        logging.info("⚠️  Não há novas marcas para inserir no banco de dados.")
+        return None 
+    else:
+        logging.info(f"✅ Inserindo {len(df)} marcas no banco de dados.")
+        marcas = [
+            Marca(
+                id_marca=int(row['code']),
+                nome = str(row['name'])
+            )
+            for _, row in df.iterrows()
+        ]
+        with Session(engine) as session:
+            session.add_all(marcas)
+            session.commit()
+            logging.info(f"✅ {len(marcas)} marcas foram inseridas no banco de dados.")
+            return marcas
+    
 
 
 if __name__ == "__main__":
@@ -97,6 +157,9 @@ if __name__ == "__main__":
     if not os.path.exists("database.db"):
         create_db_and_tables()
 
+    inserir_marcas()
+    inserir_modelos()
+
     anos_db = consulta_anos_db()
     anos_csv = consulta_anos_csv()
     diff = [item for item in anos_csv if item not in anos_db]
@@ -104,10 +167,7 @@ if __name__ == "__main__":
     if not diff_filtrado.empty:
         inserir_ano(diff_filtrado)
     else:
-        logging.info("⚠️ Não há diferenças entre o arquivo CSV e o banco de dados")
+        logging.info("⚠️  Não há diferenças entre o arquivo CSV e o banco de dados")
 
-    # df_modelos = pd.read_csv(f"{data_path}/modelos.csv")
-    # inserir_modelos(df_modelos)
-    # df_marcas = pd.read_csv(f"{data_path}/marcas.csv")
-    # inserir_marcas(df_marcas)
+    
     
