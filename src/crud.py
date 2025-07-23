@@ -1,23 +1,21 @@
 from sqlmodel import Session, select
 import os
-import logging
 import pandas as pd
 from models import Marca, Modelo, Ano
 from create_db import create_db_and_tables, engine
 from dotenv import load_dotenv
+from logger import logs
 
 load_dotenv()
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def inserir_anos():
     df = verifica_anos_db()
     if df.empty:
-        logging.info("⚠️  Não há novos registros de anos para inserir no banco de dados.")
+        logger.info("⚠️  Não há novos registros de anos para inserir no banco de dados.")
         return None
     else:
         df.sort_values(by=['year', 'brand_code', 'model_code'], inplace=True)
-        logging.info(f"✅ Inserindo {len(df)} novos registros de anos no banco de dados.")
+        logger.info(f"✅ Inserindo {len(df)} novos registros de anos no banco de dados.")
         anos = [
             Ano(
                 id_modelo=int(row['model_code']),
@@ -30,7 +28,7 @@ def inserir_anos():
         with Session(engine) as session:
             session.add_all(anos)
             session.commit()
-            logging.info(f"✅ {len(anos)} registros de anos foram inseridos no banco de dados.")
+            logger.info(f"✅ {len(anos)} registros de anos foram inseridos no banco de dados.")
         return anos
 
 def verifica_anos_db():
@@ -86,11 +84,11 @@ def verifica_modelos_db():
 def inserir_modelos():
     df = verifica_modelos_db()
     if df.empty:
-        logging.info("⚠️  Não há novos registros de modelos para inserir no banco de dados.")
+        logger.info("⚠️  Não há novos registros de modelos para inserir no banco de dados.")
         return None
     else:
         df.sort_values(by='code', inplace=True)
-        logging.info(f"✅ Inserindo {len(df)} registros de modelos no banco de dados.")
+        logger.info(f"✅ Inserindo {len(df)} registros de modelos no banco de dados.")
         modelos = [
             Modelo(
                 id_modelo=int(row['code']),
@@ -102,7 +100,7 @@ def inserir_modelos():
         with Session(engine) as session:
             session.add_all(modelos)
             session.commit()
-            logging.info(f"✅ {len(modelos)} registros de modelos foram inseridos no banco de dados.")
+            logger.info(f"✅ {len(modelos)} registros de modelos foram inseridos no banco de dados.")
         return modelos
 
 def verifica_marcas_db():
@@ -130,11 +128,11 @@ def verifica_marcas_db():
 def inserir_marcas():
     df = verifica_marcas_db()
     if df.empty:
-        logging.info("⚠️  Não há novos registros de marcas para inserir no banco de dados.")
+        logger.info("⚠️  Não há novos registros de marcas para inserir no banco de dados.")
         return None 
     else:
         df.sort_values(by='code', inplace=True)
-        logging.info(f"✅ Inserindo {len(df)} registros de marcas no banco de dados.")
+        logger.info(f"✅ Inserindo {len(df)} registros de marcas no banco de dados.")
         marcas = [
             Marca(
                 id_marca=int(row['code']),
@@ -145,13 +143,14 @@ def inserir_marcas():
         with Session(engine) as session:
             session.add_all(marcas)
             session.commit()
-            logging.info(f"✅ {len(marcas)} registros de marcas foram inseridos no banco de dados.")
+            logger.info(f"✅ {len(marcas)} registros de marcas foram inseridos no banco de dados.")
             return marcas
-    
-
 
 if __name__ == "__main__":
+    
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
+    log_path = os.getenv("PROJECT_PATH", "None") + "logs"
+    logger = logs(f"{log_path}/crud.log")
 
     if not os.path.exists("database.db"):
         create_db_and_tables()
