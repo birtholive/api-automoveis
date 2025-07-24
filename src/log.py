@@ -1,7 +1,7 @@
 import logging
 
-def logs(nome_arquivo, logger_name):    
-    logger = logging.getLogger(logger_name)  # Cria um logger específico
+def logs(nome_arquivo, nome_logger):    
+    logger = logging.getLogger(nome_logger)  # Cria um logger específico
     logger.setLevel(logging.INFO)  # Define o nível de log
 
     # # Verifica se o logger já tem handlers para evitar duplicação
