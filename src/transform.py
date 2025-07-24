@@ -2,7 +2,7 @@ import pandas as pd
 import json
 from dotenv import load_dotenv
 import os
-from logger import logs
+from log import logs
 
 load_dotenv()
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
     log_path = os.getenv("PROJECT_PATH", "None") + "logs"
 
-    logger = logs(f"{log_path}/transform.log")
+    logger = logs(f"{log_path}/transform.log", "logger_transform")
 
     logger.info("Iniciando transformação de anos")
     dados_transformados = transform_anos(data_path)

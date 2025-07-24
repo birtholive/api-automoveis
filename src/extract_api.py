@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import time
-from logger import logs
+from log import logs
 
 load_dotenv()
 
@@ -51,7 +51,7 @@ def extract_anos(diff):
             df_temp = pd.DataFrame([{"model_code": model_code, "brand_code": brand_code, "model_ano":texto}])
             df_anos = pd.concat([df_anos, df_temp], ignore_index=True)
         except Exception as e:
-            logger.error(f"Ocorreu um erro ao processar o modelo {model_code} da marca {brand_code}. Encerrando o loop para evitar bloqueio por limite de requisições.")
+            logger.error(f"Ocorreu um erro ao processar o modelo {model_code} da marca {brand_code}")
             logger.error(f"Erro: {e}")
             break    
         time.sleep(0.2)  # Pequeno delay para evitar limite de requisições    
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
     log_path = os.getenv("PROJECT_PATH", "None") + "logs"
 
-    logger = logs(f"{log_path}/extract.log")
+    logger = logs(f"{log_path}/extract.log", "logger_extract")
 
     # df_marcas = extract_marcas()
     # df_marcas.to_csv(f"{data_path}/marcas.csv", index=False)

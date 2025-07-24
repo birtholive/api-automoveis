@@ -4,7 +4,7 @@ import pandas as pd
 from models import Marca, Modelo, Ano
 from create_db import create_db_and_tables, engine
 from dotenv import load_dotenv
-from logger import logs
+from log import logs
 
 load_dotenv()
 
@@ -147,10 +147,10 @@ def inserir_marcas():
             return marcas
 
 if __name__ == "__main__":
-    
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
     log_path = os.getenv("PROJECT_PATH", "None") + "logs"
-    logger = logs(f"{log_path}/crud.log")
+
+    logger = logs(f"{log_path}/crud.log", "logger_crud")
 
     if not os.path.exists("database.db"):
         create_db_and_tables()
@@ -158,6 +158,8 @@ if __name__ == "__main__":
     inserir_marcas()
     inserir_modelos()
     inserir_anos()
+
+
 
     
     
