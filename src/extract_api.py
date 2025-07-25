@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import requests
 import time
 from log import logs
+import json
 
 load_dotenv()
 
@@ -31,7 +32,8 @@ def define_diff():
 
         par_modelo = df_modelos[["code", "brand_code"]]
         par_modelo.columns = ["model_code", "brand_code"]
-        par_ano = df_anos[["model_code", "brand_code"]]
+        par_ano = df_anos[["model_code", "brand_code"]].copy()
+        par_ano.drop_duplicates(inplace=True)
         diff = pd.concat([par_modelo, par_ano]).drop_duplicates(keep=False)
     else:
         diff = df_modelos[["code", "brand_code"]]
@@ -57,6 +59,28 @@ def extract_anos(diff):
         time.sleep(0.2)  # Pequeno delay para evitar limite de requisições    
     return df_anos
 
+def transform_anos(df):
+    if not df.empty:
+        df['model_ano'] = df['model_ano'].apply(json.loads)
+
+        # Expandindo o JSON em linhas separadas
+        df_expanded = df.explode('model_ano')
+
+        # Criando colunas a partir das chaves do dicionário
+        df_final = pd.concat([
+            df_expanded.drop('model_ano', axis=1),
+            df_expanded['model_ano'].apply(pd.Series)
+        ], axis=1)
+        df_final.columns = ['model_code', 'brand_code', 'ano_code', 'ano_name']
+        df_final['year'] = df_final['ano_name'].apply(lambda x: x.split()[0])
+        df_final['fuel'] = df_final['ano_name'].apply(lambda x: x.split()[1])
+        df_final.drop(columns=['ano_code', 'ano_name'], inplace=True)
+        logger.info(f"Anos transformados e gravados com sucesso: {len(df_final)}")
+    else:
+        logger.info("Não há novos registros de anos para serem tratados.")
+        df_final = pd.DataFrame()
+    return df_final
+
 if __name__ == "__main__":
      # Carregar variáveis de ambiente
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
@@ -72,6 +96,8 @@ if __name__ == "__main__":
 
     diff = define_diff()
     df_anos = extract_anos(diff)
-    df_anos.to_csv(f"{data_path}/anos.csv", index=False, mode="a+", header=False)
-    
+    df_anos_transformados = transform_anos(df_anos)
+    if not df_anos_transformados.empty:
+       df_anos_transformados.to_csv(f"{data_path}/anos.csv", index=False, mode="a+", header=False)
+       
 

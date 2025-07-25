@@ -43,7 +43,7 @@ def verifica_anos_db():
         else:
             lista_ano_db = []
 
-    df_anos = pd.read_csv(f"{data_path}/anos_transformados.csv")
+    df_anos = pd.read_csv(f"{data_path}/anos.csv")
     lista_ano_csv = df_anos[['model_code', 'year' ]]
     # lista_ano_csv.columns = ['id_modelo', 'ano']
     # Converte o DataFrame df_anos em uma lista de tuplas

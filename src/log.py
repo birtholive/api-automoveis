@@ -11,7 +11,9 @@ def logs(nome_arquivo, nome_logger):
 
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
+    file_handler.setLevel(logging.WARNING)
     stream_handler.setFormatter(formatter)
+    stream_handler.setLevel(logging.INFO)
 
     logger.addHandler(file_handler)
     logger.addHandler(stream_handler)
