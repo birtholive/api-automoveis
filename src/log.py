@@ -4,12 +4,14 @@ def logs(nome_arquivo, nome_logger):
     logger = logging.getLogger(nome_logger)  # Cria um logger específico
     logger.setLevel(logging.INFO)  # Define o nível de log
 
-    # # Verifica se o logger já tem handlers para evitar duplicação
-    # if not logger.hasHandlers():
+    # Remove os handlers antigos
+    if logger.hasHandlers():
+        logger.handlers.clear()
+
     file_handler = logging.FileHandler(nome_arquivo, mode='a', encoding='utf-8')
     stream_handler = logging.StreamHandler()
 
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.WARNING)
     stream_handler.setFormatter(formatter)

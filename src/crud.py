@@ -11,7 +11,7 @@ load_dotenv()
 def inserir_anos():
     df = verifica_anos_db()
     if df.empty:
-        logger.info("⚠️  Não há novos registros de anos para inserir no banco de dados.")
+        logger.warning("⚠️  Não há novos registros de anos para inserir no banco de dados.")
         return None
     else:
         df.sort_values(by=['year', 'brand_code', 'model_code'], inplace=True)
@@ -84,7 +84,7 @@ def verifica_modelos_db():
 def inserir_modelos():
     df = verifica_modelos_db()
     if df.empty:
-        logger.info("⚠️  Não há novos registros de modelos para inserir no banco de dados.")
+        logger.warning("⚠️  Não há novos registros de modelos para inserir no banco de dados.")
         return None
     else:
         df.sort_values(by='code', inplace=True)
@@ -128,7 +128,7 @@ def verifica_marcas_db():
 def inserir_marcas():
     df = verifica_marcas_db()
     if df.empty:
-        logger.info("⚠️  Não há novos registros de marcas para inserir no banco de dados.")
+        logger.warning("⚠️  Não há novos registros de marcas para inserir no banco de dados.")
         return None 
     else:
         df.sort_values(by='code', inplace=True)
@@ -150,7 +150,7 @@ if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
     log_path = os.getenv("PROJECT_PATH", "None") + "logs"
 
-    logger = logs(f"{log_path}/crud.log", "logger_crud")
+    logger = logs(f"{log_path}/logs.log", "logger_crud")
 
     if not os.path.exists("database.db"):
         create_db_and_tables()
