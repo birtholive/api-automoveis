@@ -3,6 +3,7 @@ import logging
 def logs(nome_arquivo, nome_logger):    
     logger = logging.getLogger(nome_logger)  # Cria um logger específico
     logger.setLevel(logging.INFO)  # Define o nível de log
+    logger.propagate = False  # Evita propagação para o root logger
 
     # Remove os handlers antigos
     if logger.hasHandlers():

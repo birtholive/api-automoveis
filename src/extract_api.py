@@ -77,7 +77,7 @@ def transform_anos(df):
         df_final.drop(columns=['ano_code', 'ano_name'], inplace=True)
         logger.info(f"Anos transformados e gravados com sucesso: {len(df_final)}")
     else:
-        logger.info("Não há novos registros de anos para serem tratados.")
+        logger.warning("Não há novos registros de anos para serem tratados.")
         df_final = pd.DataFrame()
     return df_final
 
