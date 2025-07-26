@@ -86,7 +86,7 @@ if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
     log_path = os.getenv("PROJECT_PATH", "None") + "logs"
 
-    logger = logs(f"{log_path}/logs.log", "logger_extract")
+    logger = logs(f"{log_path}/logs.log", "extract")
 
     # df_marcas = extract_marcas()
     # df_marcas.to_csv(f"{data_path}/marcas.csv", index=False)

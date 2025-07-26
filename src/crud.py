@@ -150,7 +150,7 @@ if __name__ == "__main__":
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
     log_path = os.getenv("PROJECT_PATH", "None") + "logs"
 
-    logger = logs(f"{log_path}/logs.log", "logger_crud")
+    logger = logs(f"{log_path}/logs.log", "crud")
 
     if not os.path.exists("database.db"):
         create_db_and_tables()
