@@ -1,4 +1,5 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, text
+from sqlalchemy.exc import OperationalError
 import os
 import pandas as pd
 from models import Marca, Modelo, Ano
@@ -7,6 +8,28 @@ from dotenv import load_dotenv
 from log import logs
 
 load_dotenv()
+
+def db_existe():
+    try:
+        # Abre conexão e executa consulta bruta
+        with engine.connect() as conn:
+            result = conn.execute(
+                text("SELECT 1 FROM ano LIMIT 1")
+            )
+            # Se conseguir buscar uma linha, a tabela existe e está acessível
+            return result.first() is not None
+
+    except OperationalError as err:
+        # Problema de rede / autenticação / servidor inacessível
+        logger.error("Erro de conexão ao banco de dados:", err)
+        return False
+
+    finally:
+        # Fecha engine (pool) para não manter conexões abertas
+        try:
+            engine.dispose()
+        except NameError:
+            pass
 
 def inserir_anos():
     df = verifica_anos_db()
@@ -152,7 +175,9 @@ if __name__ == "__main__":
 
     logger = logs(f"{log_path}/logs.log", "crud")
 
-    if not os.path.exists("database.db"):
+    # if not os.path.exists("database.db"):
+    if not db_existe():
+        logger.info('Criando banco de dados...')
         create_db_and_tables()
 
     inserir_marcas()
