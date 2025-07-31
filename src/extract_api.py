@@ -5,6 +5,7 @@ import requests
 import time
 from log import logs
 import json
+import ast
 
 load_dotenv()
 
@@ -81,6 +82,48 @@ def transform_anos(df):
         df_final = pd.DataFrame()
     return df_final
 
+
+def lista_anos():
+    dicionario = {"Gasolina":1,"Álcool":2,"Diesel":3}
+    anos = pd.read_csv(f'{data_path}/anos.csv')
+    anos['fuel'] = anos['fuel'].map(dicionario)
+    anos['year'] = anos['year'].astype(str) + '-' + anos['fuel'].astype(str)
+    lista_modelo_ano = list(anos[['brand_code', 'model_code', 'year']].itertuples(index=False, name=None))
+
+    if os.path.exists(f"{data_path}/fipe.csv"):
+        bd = pd.read_csv(f'{data_path}/fipe.csv', usecols=['marca_modelo_ano'])
+        bd=list(bd['marca_modelo_ano'])
+        bd = [ast.literal_eval(s) for s in bd]
+        lista_diff = [item for item in lista_modelo_ano if item not in bd]
+    else:
+        lista_diff = lista_modelo_ano
+    return lista_diff
+
+
+def consultaFipe():
+    lista = lista_anos()
+    registros = len(lista)
+    logger.info(f'{registros} itens a serem processados')
+    df = pd.DataFrame()
+    for (marca, modelo, ano) in lista:
+        url = f'https://fipe.parallelum.com.br/api/v2/cars/brands/{marca}/models/{modelo}/years/{ano}'
+        response = requests.get(url)
+        # response.raise_for_status()
+        status = response.status_code
+        if status == 200:
+            response = response.json()
+            df_temp = pd.DataFrame([response])
+            df_temp.drop(['vehicleType','brand','model','modelYear','fuel','fuelAcronym'], axis=1)
+            df_temp['marca_modelo_ano'] = [(marca, modelo, ano)] * len(df_temp)
+            df = pd.concat([df, df_temp], ignore_index=True)
+            print(df_temp)
+        else:
+            logger.error(f'Erro ao processar a url {url}')
+            break
+    time.sleep(0.2)
+    logger.info(f'{len(df)} de {registros} itens foram processados')
+    return df
+
 if __name__ == "__main__":
      # Carregar variáveis de ambiente
     data_path = os.getenv("PROJECT_PATH", "None") + "data"
@@ -94,10 +137,13 @@ if __name__ == "__main__":
     # df_modelos = extract_modelos()
     # df_modelos.to_csv(f"{data_path}/modelos.csv", index=False)
 
-    diff = define_diff()
-    df_anos = extract_anos(diff)
-    df_anos_transformados = transform_anos(df_anos)
-    if not df_anos_transformados.empty:
-       df_anos_transformados.to_csv(f"{data_path}/anos.csv", index=False, mode="a+", header=False)
+    # diff = define_diff()
+    # df_anos = extract_anos(diff)
+    # df_anos_transformados = transform_anos(df_anos)
+    # if not df_anos_transformados.empty:
+    #    df_anos_transformados.to_csv(f"{data_path}/anos.csv", index=False, mode="a+", header=False)
+
+    dados_fipe = consultaFipe()
+    dados_fipe.to_csv(f"{data_path}/fipe.csv", index=False, mode="a+", header=False)
        
 
